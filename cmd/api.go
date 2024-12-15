@@ -12,7 +12,7 @@ func StartWebserver(app *Application) {
 
 	userService := service.NewUserService(app.Storage)
 
-	router.GET("/v1/users", userService.Save)
+	router.POST("/v1/users", userService.Save)
 
 	err := router.Run(app.Configuration.Port)
 	if err != nil {

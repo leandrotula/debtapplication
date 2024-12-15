@@ -1,6 +1,8 @@
 package service
 
 import (
+	customErrors "debtsapp/internal/error"
+	model2 "debtsapp/internal/service/model"
 	"debtsapp/internal/storage"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -19,9 +21,11 @@ type UserServiceImpl struct {
 
 func (u *UserServiceImpl) Save(c *gin.Context) {
 
-	var request storage.User
+	var request model2.UserRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		log.Error(err)
+		customErrors.NewAppError(c, http.StatusBadRequest, "Invalid request")
+		return
 	}
 
 	hash, _ := bcrypt.GenerateFromPassword([]byte(request.Password), 15)

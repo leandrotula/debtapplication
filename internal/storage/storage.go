@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"debtsapp/internal/env"
+	model2 "debtsapp/internal/service/model"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"time"
@@ -15,7 +16,7 @@ type ErrorDB struct {
 
 type Storage struct {
 	Users interface {
-		Create(user *User) error
+		Create(user *model2.UserRequest) error
 	}
 }
 
@@ -41,7 +42,7 @@ func New() (*sql.DB, error) {
 	maxIdleConnections := env.GetInt("POSTGRES_MAX_IDLE_CONNECTIONS", 5)
 	maxIdleTimeConnection := env.GetString("POSTGRES_MAX_IDLE_TIME_CONNECTION", "10m")
 
-	dsn := fmt.Sprintf("user=%s dbname=%s sslMode=%s password=%s host=%s", user, dbname, sslMode, password, host)
+	dsn := fmt.Sprintf("user=%s dbname=%s sslmode=%s password=%s host=%s", user, dbname, sslMode, password, host)
 
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
