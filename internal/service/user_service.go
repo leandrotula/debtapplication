@@ -19,6 +19,17 @@ type UserServiceImpl struct {
 	storage *storage.Storage
 }
 
+// RegisterUser godoc
+// @Summary     Register User
+// @Description Add a new User
+// @Tags        user
+// @Param       user body model.UserRequest true "User Request Body"
+// @Accept      json
+// @Produce     json
+// @Success     201  {object} model.UserRequest "User Created"
+// @Failure     400  {object} any "Bad Request"
+// @Failure     500  {object} any "Internal Server Error"
+// @Router      /v1/users [post]
 func (u *UserServiceImpl) Save(c *gin.Context) {
 
 	var request model2.UserRequest
