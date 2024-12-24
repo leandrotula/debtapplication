@@ -5,17 +5,17 @@ So far, we only have a relational postgres db
 ```bash
 docker-compose up -d 
 ```
-## Migraciones
+## Relational DB migrations
 
-### Creación de Migraciones
-we are gonna be using the golang-migrate module to handle script migration in out relation postgres db:
+### How to create a new migration script
+we are going to be using the golang-migrate module to handle script migration in out relation postgres db:
 
-If we wanna create a new migration script, we can follow this example:
+If we want to create a new migration script, we can follow this example:
 ```bash
 migrate create -seq -ext sql -dir <dir> <file_name>
 ```
 
-#### Ejemplo
+#### Example
 ```bash
 migrate create -seq -ext sql -dir ./cmd/migrate/migrations create_users
 ```
@@ -27,7 +27,7 @@ migrate -path=./cmd/migrate/migrations -database="postgres://postgres:debtspassw
 ```
 
 ### Swagger API Rest documentation
-We are gonna be using gin-swagger, we can install it, executing:
+We are going to be using gin-swagger, we can install it, executing:
 ```bash
 go get -u github.com/swaggo/gin-swagger
 ```
