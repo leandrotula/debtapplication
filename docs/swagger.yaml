@@ -13,10 +13,10 @@ definitions:
     type: object
 info:
   contact:
-    email: support@swagger.io
+    email: ingleantula@gmail.com
     name: API Support
     url: http://www.swagger.io/support
-  description: Testing Swagger APIs.
+  description: debts api.
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -41,7 +41,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Add a new User
+      description: Add a new User in disable state
       parameters:
       - description: User Request Body
         in: body
@@ -62,7 +62,7 @@ paths:
         "500":
           description: Internal Server Error
           schema: {}
-      summary: Register User
+      summary: Register User and try to send and invitation
       tags:
       - user
 schemes:

@@ -1,27 +1,29 @@
 package service
 
 import (
+	"debtsapp/internal/configuration"
 	customErrors "debtsapp/internal/error"
 	model2 "debtsapp/internal/service/model"
 	"debtsapp/internal/storage"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	uuid "github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 )
 
 type UserService interface {
-	Save(context *gin.Context)
+	CreateAndInvite(context *gin.Context)
 }
 
 type UserServiceImpl struct {
-	storage *storage.Storage
+	configuration *configuration.Application
 }
 
 // RegisterUser godoc
-// @Summary     Register User
-// @Description Add a new User
+// @Summary     Register User and try to send and invitation
+// @Description Add a new User in disable state
 // @Tags        user
 // @Param       user body model.UserRequest true "User Request Body"
 // @Accept      json
@@ -30,7 +32,7 @@ type UserServiceImpl struct {
 // @Failure     400  {object} any "Bad Request"
 // @Failure     500  {object} any "Internal Server Error"
 // @Router      /v1/users [post]
-func (u *UserServiceImpl) Save(c *gin.Context) {
+func (u *UserServiceImpl) CreateAndInvite(c *gin.Context) {
 
 	var request model2.UserRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -41,14 +43,16 @@ func (u *UserServiceImpl) Save(c *gin.Context) {
 
 	hash, _ := bcrypt.GenerateFromPassword([]byte(request.Password), 15)
 	request.Password = string(hash)
-	err := u.storage.Users.Create(&request)
+	err := u.configuration.Storage.Users.CreateAndInvite(c, &request, uuid.NewString()) //fake token just for now
 	if err != nil {
+		u.configuration.Logger.Errorw("Couldn't create user", err)
 		c.JSON(http.StatusInternalServerError, storage.NewErrorDB(fmt.Sprintf("Error saving user: %s", err.Error())))
 	}
 
+	u.configuration.Logger.Infow("User created and invited")
 	c.JSON(http.StatusCreated, request)
 }
 
-func NewUserService(storage *storage.Storage) UserService {
-	return &UserServiceImpl{storage: storage}
+func NewUserService(configuration *configuration.Application) UserService {
+	return &UserServiceImpl{configuration: configuration}
 }

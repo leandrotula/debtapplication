@@ -35,3 +35,4 @@ After adding all the required annotation, we can execute the following command t
 ```bash
 swag init
 ```
+URL to access swagger http://<url>/swagger/index.html

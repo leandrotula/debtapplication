@@ -16,7 +16,8 @@ type ErrorDB struct {
 
 type Storage struct {
 	Users interface {
-		Create(user *model2.UserRequest) error
+		create(ctx context.Context, tx *sql.Tx, user *model2.UserRequest) error
+		CreateAndInvite(ctx context.Context, user *model2.UserRequest, token string) error
 	}
 }
 
@@ -68,4 +69,19 @@ func New() (*sql.DB, error) {
 	}
 
 	return db, nil
+}
+
+func withTx(db *sql.DB, ctx context.Context, fn func(*sql.Tx) error) error {
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	if err := fn(tx); err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
+
 }

@@ -13,7 +13,7 @@ const docTemplate = `{
         "contact": {
             "name": "API Support",
             "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
+            "email": "ingleantula@gmail.com"
         },
         "license": {
             "name": "Apache 2.0",
@@ -46,7 +46,7 @@ const docTemplate = `{
         },
         "/v1/users": {
             "post": {
-                "description": "Add a new User",
+                "description": "Add a new User in disable state",
                 "consumes": [
                     "application/json"
                 ],
@@ -56,7 +56,7 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Register User",
+                "summary": "Register User and try to send and invitation",
                 "parameters": [
                     {
                         "description": "User Request Body",
@@ -115,7 +115,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/",
 	Schemes:          []string{"http"},
 	Title:            "debs API",
-	Description:      "Testing Swagger APIs.",
+	Description:      "debts api.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

@@ -1,10 +1,10 @@
 package storage
 
 import (
+	"context"
 	"database/sql"
 	service "debtsapp/internal/service/model"
 	"debtsapp/internal/storage/model"
-	log "github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -16,7 +16,7 @@ func NewUserStore(db *sql.DB) *UserStore {
 	return &UserStore{db: db}
 }
 
-func (u *UserStore) Create(user *service.UserRequest) error {
+func (u *UserStore) create(ctx context.Context, tx *sql.Tx, user *service.UserRequest) error {
 
 	userEntity := model.UserEntity{
 		ID:        3,
@@ -29,9 +29,12 @@ func (u *UserStore) Create(user *service.UserRequest) error {
 		UpdatedAt: "",
 	}
 
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second) // put this as a configuration
+	defer cancel()
+
 	query := "insert into users (first_name, last_name, username, email, password, created_at, updated_at) values ( $1, $2, $3, $4, $5, $6, $7)"
 
-	_, _ = u.db.Exec(query,
+	_, _ = tx.Exec(query,
 		userEntity.FirstName,
 		userEntity.LastName,
 		userEntity.Username,
@@ -40,7 +43,33 @@ func (u *UserStore) Create(user *service.UserRequest) error {
 		time.Now(),
 		time.Now())
 
-	log.Info("User inserted")
+	return nil
+
+}
+
+func (u *UserStore) CreateAndInvite(ctx context.Context, user *service.UserRequest, token string) error {
+	return withTx(u.db, ctx, func(tx *sql.Tx) error {
+		if err := u.create(ctx, tx, user); err != nil {
+			return err
+		}
+
+		if err := u.createUserInvitation(ctx, tx, user.Email, token); err != nil {
+			return err
+		}
+		return nil
+	})
+}
+
+func (u *UserStore) createUserInvitation(ctx context.Context, tx *sql.Tx, email string, token string) error {
+	query := "insert into user_invitations (token, email) values ($1, $2)"
+
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second) // put this as a configuration
+	defer cancel()
+
+	_, err := tx.ExecContext(ctx, query, token, email)
+	if err != nil {
+		return err
+	}
 
 	return nil
 
