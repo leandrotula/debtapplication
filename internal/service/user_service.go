@@ -15,6 +15,7 @@ import (
 
 type UserService interface {
 	CreateAndInvite(context *gin.Context)
+	ActivateUser(context *gin.Context)
 }
 
 type UserServiceImpl struct {
@@ -51,6 +52,30 @@ func (u *UserServiceImpl) CreateAndInvite(c *gin.Context) {
 
 	u.configuration.Logger.Infow("User created and invited")
 	c.JSON(http.StatusCreated, request)
+}
+
+// Activate an user godoc
+// @Summary     Activate an user chaning status to activate = true
+// @Description Activate a user
+// @Tags        user
+// @Param       token query string true "Client's token"
+// @Produce     json
+// @Success     204 "No content"
+// @Failure     400  {object} ErrorResponse "Bad Request"
+// @Failure     500  {object} ErrorResponse "Internal Server Error"
+// @Router      /v1/users [patch]
+func (u *UserServiceImpl) ActivateUser(c *gin.Context) {
+	token := c.Query("token")
+	if token == "" {
+		c.JSON(http.StatusBadRequest, NewErrorResponse("token required", http.StatusBadRequest))
+		return
+	}
+	err := u.configuration.Storage.Users.Activate(c, c.Query("token"))
+	if err != nil {
+		u.configuration.Logger.Errorw("Couldn't activate user", err)
+		c.JSON(http.StatusInternalServerError, NewErrorResponse(err.Error(), http.StatusInternalServerError))
+	}
+	c.Status(http.StatusNoContent)
 }
 
 func NewUserService(configuration *configuration.Application) UserService {

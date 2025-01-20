@@ -11,6 +11,13 @@ definitions:
       username:
         type: string
     type: object
+  service.ErrorResponse:
+    properties:
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
 info:
   contact:
     email: ingleantula@gmail.com
@@ -38,6 +45,30 @@ paths:
       tags:
       - ping
   /v1/users:
+    patch:
+      description: Activate a user
+      parameters:
+      - description: Client's token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/service.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/service.ErrorResponse'
+      summary: Activate an user chaning status to activate = true
+      tags:
+      - user
     post:
       consumes:
       - application/json

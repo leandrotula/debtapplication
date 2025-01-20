@@ -63,6 +63,7 @@ func main() {
 	userService := service.NewUserService(app)
 
 	router.POST("/v1/users", userService.CreateAndInvite)
+	router.PATCH("/v1/users", userService.ActivateUser)
 
 	err = router.Run(app.Configuration.Port)
 	logger.Infow("Webserver started using port: ", app.Configuration.Port, "successfully")

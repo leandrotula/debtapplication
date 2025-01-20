@@ -74,3 +74,17 @@ func (u *UserStore) createUserInvitation(ctx context.Context, tx *sql.Tx, email 
 	return nil
 
 }
+
+func (u *UserStore) Activate(ctx context.Context, token string) error {
+	query := "update users set active = true where email = (select email from user_invitations where token = $1)"
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	return withTx(u.db, ctx, func(tx *sql.Tx) error {
+		_, err := tx.ExecContext(ctx, query, token)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+}
