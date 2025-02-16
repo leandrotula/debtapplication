@@ -2,8 +2,8 @@ name: Custom CI/CD
 on:
   push:
     branches: [main]
-    pull_request:
-      branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   build:
@@ -25,4 +25,3 @@ jobs:
         run: go install honnef.co/go/tools/cmd/staticcheck@latest
       - name: Run staticcheck
         run: staticcheck ./...
-
