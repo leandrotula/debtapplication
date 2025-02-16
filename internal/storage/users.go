@@ -29,7 +29,7 @@ func (u *UserStore) create(ctx context.Context, tx *sql.Tx, user *service.UserRe
 		UpdatedAt: "",
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second) // put this as a configuration
+	_, cancel := context.WithTimeout(ctx, 5*time.Second) // put this as a configuration
 	defer cancel()
 
 	query := "insert into users (first_name, last_name, username, email, password, created_at, updated_at) values ( $1, $2, $3, $4, $5, $6, $7)"

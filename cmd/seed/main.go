@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	cryptoRand "crypto/rand"
 	"database/sql"
 	"debtsapp/internal/service/model"
 	"debtsapp/internal/storage"
@@ -17,7 +18,7 @@ import (
 const MaxQuantityUsers = 10
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
+	rand.New(rand.NewSource(time.Now().UnixNano()))
 	logger := zap.Must(zap.NewProduction()).Sugar()
 	db, err := storage.New()
 	if err != nil {
@@ -46,13 +47,13 @@ func main() {
 			logger.Fatalw("There was an error trying to create and invite user", err)
 			panic(err)
 		}
-
 	}
+	logger.Infow("Mocked Users created and invited")
 }
 
 func generateRandomToken() string {
 	bytes := make([]byte, 16)
-	if _, err := rand.Read(bytes); err != nil {
+	if _, err := cryptoRand.Read(bytes); err != nil {
 		panic(err)
 	}
 	return hex.EncodeToString(bytes)
