@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 )
 
 func GetString(key, defaultValue string) string {
@@ -29,6 +30,15 @@ func GetInt(key string, defaultValue int) int {
 		panic(err)
 	}
 	return convertedValue
+}
+
+func GetExpirationDuration() time.Duration {
+	expirationStr := os.Getenv("TOKEN_EXPIRATION")
+	duration, err := time.ParseDuration(expirationStr)
+	if err != nil {
+		log.Fatalf("Error while trying to parse duration value: %v", err)
+	}
+	return duration
 }
 
 func loadEnv() {

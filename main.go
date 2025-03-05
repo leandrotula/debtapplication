@@ -5,6 +5,7 @@ import (
 	"debtsapp/cmd/handler"
 	_ "debtsapp/docs"
 	"debtsapp/internal/configuration"
+	token2 "debtsapp/internal/configuration/token"
 	"debtsapp/internal/env"
 	"debtsapp/internal/service"
 	"debtsapp/internal/storage"
@@ -57,6 +58,11 @@ func main() {
 			Port: env.GetString("PORT", "8080"),
 		},
 		Logger: logger,
+		ConfigurationToken: token2.NewConfigurationToken(
+			env.GetExpirationDuration(),
+			env.GetString("SECRET_TOKEN", "test"),
+			env.GetString("AUDIENCE_TOKEN", "testaudience"),
+			env.GetString("ISSUER_TOKEN", "testissuer")),
 	}
 
 	router := handler.CreateRouterApp()

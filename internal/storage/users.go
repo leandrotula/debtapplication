@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	service "debtsapp/internal/service/model"
 	"debtsapp/internal/storage/model"
+	"errors"
+	"fmt"
 	"time"
 )
 
@@ -87,4 +89,23 @@ func (u *UserStore) Activate(ctx context.Context, token string) error {
 		}
 		return nil
 	})
+}
+
+func (u *UserStore) FindUserByEmail(ctx context.Context, email string) (*model.UserEntity, error) {
+	query := "SELECT id, username, email, password, created_at FROM users WHERE email = $1 AND is_active = true"
+
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	var user model.UserEntity
+	err := u.db.QueryRowContext(ctx, query, email).Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.CreatedAt)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("user not found")
+		}
+		return nil, err
+	}
+
+	return &user, nil
+
 }

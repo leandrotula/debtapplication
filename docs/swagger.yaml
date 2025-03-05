@@ -18,6 +18,18 @@ definitions:
       status:
         type: integer
     type: object
+  token.CreateTokenPayload:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  token.CreateTokenResponse:
+    properties:
+      token:
+        type: string
+    type: object
 info:
   contact:
     email: ingleantula@gmail.com
@@ -44,6 +56,34 @@ paths:
       summary: ping verify if app is running
       tags:
       - ping
+  /v1/token:
+    post:
+      consumes:
+      - application/json
+      description: It generates a token
+      parameters:
+      - description: Token Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/token.CreateTokenPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User token
+          schema:
+            $ref: '#/definitions/token.CreateTokenResponse'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Generates a token for an existing and active user
+      tags:
+      - Create User's token
   /v1/users:
     patch:
       description: Activate a user
