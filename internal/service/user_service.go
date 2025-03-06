@@ -51,7 +51,7 @@ func (u *UserServiceImpl) CreateAndInvite(c *gin.Context) {
 	}
 
 	u.configuration.Logger.Infow("User created and invited")
-	c.JSON(http.StatusCreated, request)
+	c.JSON(http.StatusCreated, model2.NewUserResponse(request.Name, request.LastName, request.Username, request.Email))
 }
 
 // Activate an user godoc

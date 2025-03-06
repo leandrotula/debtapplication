@@ -68,7 +68,7 @@ func main() {
 	router := handler.CreateRouterApp()
 
 	userService := service.NewUserService(app)
-	tokenService := token.NewTokenService()
+	tokenService := token.NewTokenService(app)
 
 	router.POST("/v1/users", userService.CreateAndInvite)
 	router.PATCH("/v1/users", userService.ActivateUser)

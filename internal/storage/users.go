@@ -92,7 +92,7 @@ func (u *UserStore) Activate(ctx context.Context, token string) error {
 }
 
 func (u *UserStore) FindUserByEmail(ctx context.Context, email string) (*model.UserEntity, error) {
-	query := "SELECT id, username, email, password, created_at FROM users WHERE email = $1 AND is_active = true"
+	query := "SELECT id, username, email, password, created_at FROM users WHERE email = $1 AND active = true"
 
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()

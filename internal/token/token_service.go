@@ -4,7 +4,6 @@ import (
 	"context"
 	"debtsapp/internal/configuration"
 	customErrors "debtsapp/internal/error"
-	"debtsapp/internal/storage"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	log "github.com/sirupsen/logrus"
@@ -20,11 +19,13 @@ type AbstractTokenService interface {
 type AppTokenService struct {
 	Generator
 	configuration *configuration.Application
-	userStore     storage.UserStore
 }
 
-func NewTokenService() AbstractTokenService {
-	return &AppTokenService{}
+func NewTokenService(app *configuration.Application) AbstractTokenService {
+	return &AppTokenService{
+		Generator:     &CustomToken{},
+		configuration: app,
+	}
 }
 
 // GenerateTokenHandler genera un token JWT para un usuario activo
@@ -46,7 +47,7 @@ func (t *AppTokenService) GenerateJwtToken(c *gin.Context) {
 		return
 	}
 
-	userFound, err := t.userStore.FindUserByEmail(context.Background(), tokenPayload.Email)
+	userFound, err := t.configuration.Storage.Users.FindUserByEmail(context.Background(), tokenPayload.Email)
 	if err != nil {
 		log.Error(err)
 		customErrors.NewAppError(c, http.StatusUnauthorized, "user unauthorized")
@@ -66,7 +67,7 @@ func (t *AppTokenService) GenerateJwtToken(c *gin.Context) {
 	}
 	token, err := t.Generator.GenerateJwtToken(t.configuration.ConfigurationToken.Secret, claims)
 	if err != nil {
-		c.Status(500)
+		c.JSON(http.StatusInternalServerError, NewCustomTokenError(err.Error()))
 	}
-	c.JSON(200, token)
+	c.JSON(http.StatusOK, NewTokenResponse(token))
 }

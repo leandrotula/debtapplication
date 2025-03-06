@@ -4,6 +4,10 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+type TokenErrorResponse struct {
+	Error string `json:"error"`
+}
+
 type CreateTokenPayload struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -11,6 +15,18 @@ type CreateTokenPayload struct {
 
 type CreateTokenResponse struct {
 	Token string `json:"token"`
+}
+
+func NewTokenResponse(token string) *CreateTokenResponse {
+	return &CreateTokenResponse{
+		token,
+	}
+}
+
+func NewCustomTokenError(error string) *TokenErrorResponse {
+	return &TokenErrorResponse{
+		error,
+	}
 }
 
 type Generator interface {
