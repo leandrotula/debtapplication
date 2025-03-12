@@ -21,7 +21,6 @@ func NewUserStore(db *sql.DB) *UserStore {
 func (u *UserStore) create(ctx context.Context, tx *sql.Tx, user *service.UserRequest) error {
 
 	userEntity := model.UserEntity{
-		ID:        3,
 		FirstName: user.Name,
 		LastName:  user.LastName,
 		Username:  user.Username,

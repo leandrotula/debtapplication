@@ -8,6 +8,19 @@ definitions:
         type: string
       name:
         type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  model.UserResponse:
+    properties:
+      email:
+        type: string
+      last_name:
+        type: string
+      name:
+        type: string
       username:
         type: string
     type: object
@@ -126,7 +139,7 @@ paths:
         "201":
           description: User Created
           schema:
-            $ref: '#/definitions/model.UserRequest'
+            $ref: '#/definitions/model.UserResponse'
         "400":
           description: Bad Request
           schema: {}

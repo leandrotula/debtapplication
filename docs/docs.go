@@ -114,7 +114,7 @@ const docTemplate = `{
                     "201": {
                         "description": "User Created",
                         "schema": {
-                            "$ref": "#/definitions/model.UserRequest"
+                            "$ref": "#/definitions/model.UserResponse"
                         }
                     },
                     "400": {
@@ -167,6 +167,26 @@ const docTemplate = `{
     },
     "definitions": {
         "model.UserRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UserResponse": {
             "type": "object",
             "properties": {
                 "email": {

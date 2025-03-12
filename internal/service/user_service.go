@@ -29,7 +29,7 @@ type UserServiceImpl struct {
 // @Param       user body model.UserRequest true "User Request Body"
 // @Accept      json
 // @Produce     json
-// @Success     201  {object} model.UserRequest "User Created"
+// @Success     201  {object} model.UserResponse "User Created"
 // @Failure     400  {object} any "Bad Request"
 // @Failure     500  {object} any "Internal Server Error"
 // @Router      /v1/users [post]
