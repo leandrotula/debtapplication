@@ -15,13 +15,14 @@ type ErrorDB struct {
 	Message string
 }
 
+type Users interface {
+	CreateAndInvite(ctx context.Context, user *model2.UserRequest, token string) error
+	Activate(ctx context.Context, token string) error
+	FindUserByEmail(ctx context.Context, email string) (*model.UserEntity, error)
+}
+
 type Storage struct {
-	Users interface {
-		create(ctx context.Context, tx *sql.Tx, user *model2.UserRequest) error
-		CreateAndInvite(ctx context.Context, user *model2.UserRequest, token string) error
-		Activate(ctx context.Context, token string) error
-		FindUserByEmail(ctx context.Context, email string) (*model.UserEntity, error)
-	}
+	Users Users
 }
 
 func NewStorage(db *sql.DB) *Storage {

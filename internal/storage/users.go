@@ -82,9 +82,16 @@ func (u *UserStore) Activate(ctx context.Context, token string) error {
 	defer cancel()
 
 	return withTx(u.db, ctx, func(tx *sql.Tx) error {
-		_, err := tx.ExecContext(ctx, query, token)
+		result, err := tx.ExecContext(ctx, query, token)
 		if err != nil {
 			return err
+		}
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		if rowsAffected == 0 {
+			return fmt.Errorf("user not found")
 		}
 		return nil
 	})

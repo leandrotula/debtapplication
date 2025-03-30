@@ -7,7 +7,7 @@ import (
 	"debtsapp/internal/storage"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	uuid "github.com/google/uuid"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
@@ -71,9 +71,9 @@ func (u *UserServiceImpl) ActivateUser(c *gin.Context) {
 		return
 	}
 	err := u.configuration.Storage.Users.Activate(c, c.Query("token"))
-	if err != nil {
+	if err != nil && err.Error() == "user not found" {
 		u.configuration.Logger.Errorw("Couldn't activate user", err)
-		c.JSON(http.StatusInternalServerError, NewErrorResponse(err.Error(), http.StatusInternalServerError))
+		c.JSON(http.StatusNotFound, NewErrorResponse(err.Error(), http.StatusNotFound))
 	}
 	c.Status(http.StatusNoContent)
 }
