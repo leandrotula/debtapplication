@@ -7,7 +7,7 @@ import (
 	"debtsapp/internal/storage"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	uuid "github.com/google/uuid"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
@@ -29,7 +29,7 @@ type UserServiceImpl struct {
 // @Param       user body model.UserRequest true "User Request Body"
 // @Accept      json
 // @Produce     json
-// @Success     201  {object} model.UserRequest "User Created"
+// @Success     201  {object} model.UserResponse "User Created"
 // @Failure     400  {object} any "Bad Request"
 // @Failure     500  {object} any "Internal Server Error"
 // @Router      /v1/users [post]
@@ -51,7 +51,7 @@ func (u *UserServiceImpl) CreateAndInvite(c *gin.Context) {
 	}
 
 	u.configuration.Logger.Infow("User created and invited")
-	c.JSON(http.StatusCreated, request)
+	c.JSON(http.StatusCreated, model2.NewUserResponse(request.Name, request.LastName, request.Username, request.Email))
 }
 
 // Activate an user godoc
@@ -71,9 +71,9 @@ func (u *UserServiceImpl) ActivateUser(c *gin.Context) {
 		return
 	}
 	err := u.configuration.Storage.Users.Activate(c, c.Query("token"))
-	if err != nil {
+	if err != nil && err.Error() == "user not found" {
 		u.configuration.Logger.Errorw("Couldn't activate user", err)
-		c.JSON(http.StatusInternalServerError, NewErrorResponse(err.Error(), http.StatusInternalServerError))
+		c.JSON(http.StatusNotFound, NewErrorResponse(err.Error(), http.StatusNotFound))
 	}
 	c.Status(http.StatusNoContent)
 }

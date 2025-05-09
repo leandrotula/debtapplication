@@ -44,6 +44,48 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/token": {
+            "post": {
+                "description": "It generates a token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Create User's token"
+                ],
+                "summary": "Generates a token for an existing and active user",
+                "parameters": [
+                    {
+                        "description": "Token Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/token.CreateTokenPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "User token",
+                        "schema": {
+                            "$ref": "#/definitions/token.CreateTokenResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            }
+        },
         "/v1/users": {
             "post": {
                 "description": "Add a new User in disable state",
@@ -72,7 +114,7 @@ const docTemplate = `{
                     "201": {
                         "description": "User Created",
                         "schema": {
-                            "$ref": "#/definitions/model.UserRequest"
+                            "$ref": "#/definitions/model.UserResponse"
                         }
                     },
                     "400": {
@@ -136,6 +178,26 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UserResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
                 "username": {
                     "type": "string"
                 }
@@ -149,6 +211,25 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "integer"
+                }
+            }
+        },
+        "token.CreateTokenPayload": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "token.CreateTokenResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
                 }
             }
         }

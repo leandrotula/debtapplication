@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"debtsapp/internal/env"
 	model2 "debtsapp/internal/service/model"
+	"debtsapp/internal/storage/model"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"time"
@@ -14,12 +15,14 @@ type ErrorDB struct {
 	Message string
 }
 
+type Users interface {
+	CreateAndInvite(ctx context.Context, user *model2.UserRequest, token string) error
+	Activate(ctx context.Context, token string) error
+	FindUserByEmail(ctx context.Context, email string) (*model.UserEntity, error)
+}
+
 type Storage struct {
-	Users interface {
-		create(ctx context.Context, tx *sql.Tx, user *model2.UserRequest) error
-		CreateAndInvite(ctx context.Context, user *model2.UserRequest, token string) error
-		Activate(ctx context.Context, token string) error
-	}
+	Users Users
 }
 
 func NewStorage(db *sql.DB) *Storage {

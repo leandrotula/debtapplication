@@ -5,9 +5,11 @@ import (
 	"debtsapp/cmd/handler"
 	_ "debtsapp/docs"
 	"debtsapp/internal/configuration"
+	token2 "debtsapp/internal/configuration/token"
 	"debtsapp/internal/env"
 	"debtsapp/internal/service"
 	"debtsapp/internal/storage"
+	"debtsapp/internal/token"
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 )
@@ -56,14 +58,21 @@ func main() {
 			Port: env.GetString("PORT", "8080"),
 		},
 		Logger: logger,
+		ConfigurationToken: token2.NewConfigurationToken(
+			env.GetExpirationDuration(),
+			env.GetString("SECRET_TOKEN", "test"),
+			env.GetString("AUDIENCE_TOKEN", "testaudience"),
+			env.GetString("ISSUER_TOKEN", "testissuer")),
 	}
 
 	router := handler.CreateRouterApp()
 
 	userService := service.NewUserService(app)
+	tokenService := token.NewTokenService(app)
 
 	router.POST("/v1/users", userService.CreateAndInvite)
 	router.PATCH("/v1/users", userService.ActivateUser)
+	router.POST("/v1/token", tokenService.GenerateJwtToken)
 
 	err = router.Run(app.Configuration.Port)
 	logger.Infow("Webserver started using port: ", app.Configuration.Port, "successfully")
