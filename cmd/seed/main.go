@@ -32,7 +32,7 @@ func main() {
 		}
 	}(db)
 
-	newStorage := storage.NewStorage(db)
+	newStorage := storage.InitDB(db)
 
 	for i := 0; i < MaxQuantityUsers; i++ {
 		user := model.UserRequest{

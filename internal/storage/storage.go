@@ -25,7 +25,13 @@ type Storage struct {
 	Users Users
 }
 
-func NewStorage(db *sql.DB) *Storage {
+func NewStorage(users Users) *Storage {
+	return &Storage{
+		Users: users,
+	}
+}
+
+func InitDB(db *sql.DB) *Storage {
 	return &Storage{
 		Users: NewUserStore(db),
 	}

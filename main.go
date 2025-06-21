@@ -7,11 +7,12 @@ import (
 	"debtsapp/internal/configuration"
 	token2 "debtsapp/internal/configuration/token"
 	"debtsapp/internal/env"
+	clogger "debtsapp/internal/logger"
 	"debtsapp/internal/service"
+	"debtsapp/internal/service/encription"
 	"debtsapp/internal/storage"
 	"debtsapp/internal/token"
 	_ "github.com/lib/pq"
-	"go.uber.org/zap"
 )
 
 // @title          debs API
@@ -30,13 +31,8 @@ import (
 
 // @schemes http
 func main() {
-	logger := zap.Must(zap.NewProduction()).Sugar()
-	defer func(logger *zap.SugaredLogger) {
-		err := logger.Sync()
-		if err != nil {
-			panic(err)
-		}
-	}(logger)
+
+	logger := clogger.GetLogger()
 
 	logger.Infow("initializing debtsapp microservice")
 
@@ -53,11 +49,10 @@ func main() {
 	}(db)
 
 	app := &configuration.Application{
-		Storage: storage.NewStorage(db),
+		Storage: storage.InitDB(db),
 		Configuration: configuration.Configuration{
 			Port: env.GetString("PORT", "8080"),
 		},
-		Logger: logger,
 		ConfigurationToken: token2.NewConfigurationToken(
 			env.GetExpirationDuration(),
 			env.GetString("SECRET_TOKEN", "test"),
@@ -66,8 +61,9 @@ func main() {
 	}
 
 	router := handler.CreateRouterApp()
+	encryptionService := encription.NewDebtEncryption()
 
-	userService := service.NewUserService(app)
+	userService := service.NewUserService(app, encryptionService)
 	tokenService := token.NewTokenService(app)
 
 	router.POST("/v1/users", userService.CreateAndInvite)

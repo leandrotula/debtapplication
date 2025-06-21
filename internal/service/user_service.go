@@ -3,13 +3,12 @@ package service
 import (
 	"debtsapp/internal/configuration"
 	customErrors "debtsapp/internal/error"
-	model2 "debtsapp/internal/service/model"
-	"debtsapp/internal/storage"
-	"fmt"
+	clogger "debtsapp/internal/logger"
+	"debtsapp/internal/service/encription"
+	appmodel "debtsapp/internal/service/model"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
-	"golang.org/x/crypto/bcrypt"
 	"net/http"
 )
 
@@ -19,7 +18,8 @@ type UserService interface {
 }
 
 type UserServiceImpl struct {
-	configuration *configuration.Application
+	app               *configuration.Application
+	encryptionService encription.CustomEncryption
 }
 
 // RegisterUser godoc
@@ -35,23 +35,28 @@ type UserServiceImpl struct {
 // @Router      /v1/users [post]
 func (u *UserServiceImpl) CreateAndInvite(c *gin.Context) {
 
-	var request model2.UserRequest
+	var request appmodel.UserRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		log.Error(err)
 		customErrors.NewAppError(c, http.StatusBadRequest, "Invalid request")
 		return
 	}
 
-	hash, _ := bcrypt.GenerateFromPassword([]byte(request.Password), 15)
+	hash, errorEncryption := u.encryptionService.Encrypt([]byte(request.Password), 15)
+	if errorEncryption != nil {
+		c.JSON(http.StatusInternalServerError, "Error encrypting password")
+		return
+	}
 	request.Password = string(hash)
-	err := u.configuration.Storage.Users.CreateAndInvite(c, &request, uuid.NewString()) //fake token just for now
+	err := u.app.Storage.Users.CreateAndInvite(c, &request, uuid.NewString()) //fake token just for now
 	if err != nil {
-		u.configuration.Logger.Errorw("Couldn't create user", err)
-		c.JSON(http.StatusInternalServerError, storage.NewErrorDB(fmt.Sprintf("Error saving user: %s", err.Error())))
+		c.JSON(http.StatusInternalServerError, "error creating user")
+		return
 	}
 
-	u.configuration.Logger.Infow("User created and invited")
-	c.JSON(http.StatusCreated, model2.NewUserResponse(request.Name, request.LastName, request.Username, request.Email))
+	// TODO remove this as a dependency from application struct
+	//u.app.Logger.Infow("User created and invited")
+	c.JSON(http.StatusCreated, appmodel.NewUserResponse(request.Name, request.LastName, request.Username, request.Email))
 }
 
 // Activate an user godoc
@@ -65,19 +70,25 @@ func (u *UserServiceImpl) CreateAndInvite(c *gin.Context) {
 // @Failure     500  {object} ErrorResponse "Internal Server Error"
 // @Router      /v1/users [patch]
 func (u *UserServiceImpl) ActivateUser(c *gin.Context) {
+	logger := clogger.GetLogger()
 	token := c.Query("token")
 	if token == "" {
+		logger.Error("token required")
 		c.JSON(http.StatusBadRequest, NewErrorResponse("token required", http.StatusBadRequest))
 		return
 	}
-	err := u.configuration.Storage.Users.Activate(c, c.Query("token"))
+	err := u.app.Storage.Users.Activate(c, c.Query("token"))
 	if err != nil && err.Error() == "user not found" {
-		u.configuration.Logger.Errorw("Couldn't activate user", err)
+		logger.Error(err)
 		c.JSON(http.StatusNotFound, NewErrorResponse(err.Error(), http.StatusNotFound))
 	}
 	c.Status(http.StatusNoContent)
 }
 
-func NewUserService(configuration *configuration.Application) UserService {
-	return &UserServiceImpl{configuration: configuration}
+func NewUserService(application *configuration.Application,
+	encryption encription.CustomEncryption) UserService {
+	return &UserServiceImpl{
+		app:               application,
+		encryptionService: encryption,
+	}
 }
