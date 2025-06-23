@@ -54,8 +54,6 @@ func (u *UserServiceImpl) CreateAndInvite(c *gin.Context) {
 		return
 	}
 
-	// TODO remove this as a dependency from application struct
-	//u.app.Logger.Infow("User created and invited")
 	c.JSON(http.StatusCreated, appmodel.NewUserResponse(request.Name, request.LastName, request.Username, request.Email))
 }
 
@@ -81,8 +79,9 @@ func (u *UserServiceImpl) ActivateUser(c *gin.Context) {
 	if err != nil && err.Error() == "user not found" {
 		logger.Error(err)
 		c.JSON(http.StatusNotFound, NewErrorResponse(err.Error(), http.StatusNotFound))
+		return
 	}
-	c.Status(http.StatusNoContent)
+	c.JSON(http.StatusNoContent, nil)
 }
 
 func NewUserService(application *configuration.Application,
