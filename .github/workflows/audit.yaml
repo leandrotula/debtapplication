@@ -24,8 +24,9 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
-            file: ./coverage.out
-            fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.out
+          fail_ci_if_error: true
       - name: Run go vet
         run: go vet ./...
       - name: Install staticcheck
