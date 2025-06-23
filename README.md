@@ -36,3 +36,7 @@ After adding all the required annotation, we can execute the following command t
 swag init
 ```
 URL to access swagger http://<url>/swagger/index.html
+
+### coverage 
+This repository has a connection with codecov to easily see how is coverage going
+![example](example.png)
